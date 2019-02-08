@@ -10,8 +10,11 @@ mavs = [team for team in nba_teams
 
 from nba_api.stats.endpoints import teamyearbyyearstats
 mavs_yby_stats = teamyearbyyearstats.TeamYearByYearStats(team_id=mavs['id']).get_data_frames()[0]
+
 lockout_year_index = mavs_yby_stats[mavs_yby_stats['YEAR'] == '2011-12'].index.values[0]
-reg_season_df = pd.DataFrame(columns=mavs_yby_stats)
+reg_season_df = pd.DataFrame(columns=mavs_yby_stats.columns)
+
+print(reg_season_df)
 
 for team in nba_teams :
     team_yby_stats = teamyearbyyearstats.TeamYearByYearStats(team_id=team['id']).get_data_frames()[0]
@@ -20,3 +23,5 @@ for team in nba_teams :
 
 print(reg_season_df.head())
 print(reg_season_df.describe())
+
+reg_season_df = reg_season_df.set_index(['TEAM_ID', 'YEAR'])
