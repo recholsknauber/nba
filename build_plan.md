@@ -16,7 +16,7 @@
 
 ## Current Plan
 #### Start with "Predict who will win the NBA Finals in a season, based on reg season team stats"
-- Step 1: Data pull and munging of reg season team stats, in organized code structure.
-- Step 2: Visualization and EDA.
-- Step 3: Feature engineering, reduction, and scaling.
-- Step 4: Grid search.
+1. Data pull and munging of reg season team stats, in organized code structure.
+2. Visualization and EDA.
+3. Feature engineering, reduction, and scaling.
+4. Grid search.
