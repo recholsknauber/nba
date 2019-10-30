@@ -1,0 +1,27 @@
+# Building an NBA model
+
+** Basic Ideas, in order of complexity
+
+*** Now
+**** Project environment
+***** Creating html from org with javascript data pulls in-line.
+***** Get started with Vu/React as needed--the user should be able to enter player names and see associated stats.
+***** From there, we can 
+**** Predict winners game by game--focusing first on the Dallas Mavericks.
+***** Is a starting lineups PER (average?) predictive of how they will perform in games?
+***** Test: how much money would someone have made if they started using the model at the beginning of the season?
+*** Harder
+- Find the most underused/underpaid players in the NBA
+- Predict who will win an NBA game based on player level stats
+
+*** Really hard
+- Pull data from game recordings
+- Set up NBA game simulations to predict game winner likelihood
+
+
+** Current Plan
+*** Start with "Predict who will win the NBA Finals in a season, based on reg season team stats"
+1. Data pull and munging of reg season team stats, in organized code structure.
+2. Visualization and EDA.
+3. Feature engineering, reduction, and scaling.
+4. Grid search.
