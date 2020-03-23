@@ -7,4 +7,5 @@
 
      nba_data_import_2011 = get_nba_team_stats (2011)
      nba_data_import_2011.head()
+     nba_data_import_2011.to_csv("~/data/nba-data/nba_teams_2012.csv", index=True)
    #+end_src
