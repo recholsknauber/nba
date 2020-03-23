@@ -10,3 +10,37 @@
      nba_data_import_2011.to_csv("~/data/nba-data/nba_teams_2012.csv", index=True)
    #+end_src
 
+** Import NBA csv to Clojure
+https://github.com/clojure/data.csv
+   #+begin_src clojure
+     (require '[clojure.data.csv :as csv]
+	      '[clojure.java.io :as io])
+
+     ;; Convert CSV data to maps
+     (defn csv-data->maps [csv-data]
+       (map zipmap
+	    (->> (first csv-data) ;; First row is the header
+		 (map keyword) ;; Drop if you want string keys instead
+		 repeat)
+	    (rest csv-data)))
+
+     (def nba_team_stats_2011
+       (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
+	 (doall
+	  (let [data (csv/read-csv reader)]
+	    (csv-data->maps data)))))
+   #+end_src
+
+   #+RESULTS:
+   : nil#'nba.core/csv-data->maps#'nba.core/nba_team_stats_2011
+
+** Start Oz server (throws error on browser open, but is correctly running on local port.)
+   #+begin_src clojure
+     (require '[oz.core :as oz])
+     (oz/start-server!)
+     ;; http://localhost:10666/
+   #+end_src
+** Visualizin Mavs
+   #+begin_src clojure
+     (filter #(= (:TEAM_NAME %) "Mavericks") nba_team_stats_2011)
+   #+end_src
