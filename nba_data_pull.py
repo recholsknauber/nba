@@ -24,4 +24,3 @@ def get_nba_team_stats(start_year,type='regular'):
     print('Number of unique team IDs: ', reg_season_yby['TEAM_ID'].nunique())
     reg_season_yby = reg_season_yby.set_index(['TEAM_ID', 'YEAR'])
     return reg_season_yby
-

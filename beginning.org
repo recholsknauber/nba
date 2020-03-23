@@ -1,5 +1,25 @@
 * Use libpython-clj to pull NBA data
 ** Python code for data pull
+   #+name: nba_data_import
    #+begin_src python
+     import nba_data_pull
 
+     nba_data = get_nba_team_stats(2011)
+     return nba_data_import
    #+end_src
+
+   #+RESULTS: nba_data_import
+
+   #+name: nba_data_format
+   #+begin_src python :var input=nba_data_import :results output
+     input = nba_data_import
+     nba_team_stats = nba_data_import
+   #+end_src
+
+   #+begin_src python :var input=nba_data_format :results output
+     nba_team_stats = input
+     print(type(nba_team_stats))
+   #+end_src
+
+   #+RESULTS:
+   : 6
