@@ -3,7 +3,7 @@ import pandas as pd
 from nba_api.stats.static import teams
 from nba_api.stats.endpoints import teamyearbyyearstats
 
-def get_nba_team_stats(start_year,type='regular'):
+def get_nba_team_stats (start_year,type='regular'):
     # Getting Mavs team ID for example
     nba_teams = teams.get_teams()
     mavs_id = [team for team in nba_teams
