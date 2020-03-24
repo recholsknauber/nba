@@ -37,11 +37,18 @@ https://github.com/clojure/data.csv
        (map #(csv-data-sort-columns csv-data %1)
 	    (csv-data->maps csv-data)))
 
+     (defn update-keys [m ks f]
+	 (reduce #(update-in % [%2] f) m ks))
+
+     (def nba_team_stats_nums [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT])
+
      (def nba_team_stats_2011
        (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
 	 (doall
 	  (let [csv-data (csv/read-csv reader)]
-	    (csv-data->sorted-maps csv-data)))))
+     ;;       (csv-data->sorted-maps csv-data)))))
+	    (map #(update-keys % nba_team_stats_nums read-string)
+		 (csv-data->sorted-maps csv-data))))))
 
      (take 2 nba_team_stats_2011)
    #+end_src
@@ -57,19 +64,25 @@ https://github.com/clojure/data.csv
    #+end_src
 ** Visualizing Mavs
    #+begin_src clojure
-     (filter #(= (:TEAM_NAME %) "Mavericks") nba_team_stats_2011)
-
-     (defn play-data [& names]
-       (for [n names
-	     i (range 20)]
-	     {:time i :item n :quantity (+ (Math/pow (* i (count n)) 0.8) (rand-int (count n)))}))
-
      (def line-plot
-       {:data {:values (play-data "monkey" "slipper" "broom")}
-	:encoding {:x {:field "time" :type "quantitative"}
-		   :y {:field "quantity" :type "quantitative"}
-		   :color {:field "item" :type "nominal"}}
+       {:data {:values
+	       (filter #(= (:TEAM_NAME %) "Mavericks") nba_team_stats_2011)}
+	:encoding {:x {:field "YEAR" :type "quantitative"}
+		   :y {:field "FG_PCT" :type "quantitative"}
+		   :color {:field "WINS" :type "quantitative"}}
 	:mark "line"})
+
+     ;; (defn play-data [& names]
+     ;;   (for [n names
+     ;; 	i (range 20)]
+     ;; 	{:time i :item n :quantity (+ (Math/pow (* i (count n)) 0.8) (rand-int (count n)))}))
+
+     ;; (def line-plot
+     ;;   {:data {:values (play-data "monkey" "slipper" "broom")}
+     ;;    :encoding {:x {:field "time" :type "quantitative"}
+     ;; 	      :y {:field "quantity" :type "quantitative"}
+     ;; 	      :color {:field "item" :type "nominal"}}
+     ;;    :mark "line"})
 
      ;; Render the plot
      (oz/view! line-plot)
