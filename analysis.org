@@ -1,5 +1,5 @@
-* Use Python to pull NBA data
-** Python code for data pull
+* Pull NBA data
+** Python for nba_api
    #+name: nba_data_import
    #+begin_src python
      import pandas as pd
