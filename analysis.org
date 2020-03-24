@@ -13,6 +13,7 @@
 * Clojure Data Manipulation
 ** Import NBA csv to Clojure, formatting into a sequence of maps.
 https://github.com/clojure/data.csv
+https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
    #+begin_src clojure
      (require '[clojure.data.csv :as csv]
 	      '[clojure.java.io :as io]
@@ -25,6 +26,11 @@ https://github.com/clojure/data.csv
        (let [coll-index (zipmap (map keyword (first csv-data)) whole-numbers)]
 	 (into (sorted-map-by #(compare (%1 coll-index) (%2 coll-index))) coll)))
 
+     ;; Map data sort function over a sequence of maps.
+     (defn csv-data->sorted-maps [csv-data s]
+       (map #(csv-data-sort-columns csv-data %1) s))
+
+
      ;; Convert CSV data to maps
      (defn csv-data->maps [csv-data]
        (map zipmap
@@ -33,22 +39,30 @@ https://github.com/clojure/data.csv
 		 repeat)
 	    (rest csv-data)))
 
-     (defn csv-data->sorted-maps [csv-data]
-       (map #(csv-data-sort-columns csv-data %1)
-	    (csv-data->maps csv-data)))
-
+     ;; Iterate a function over multiple keys
      (defn update-keys [m ks f]
 	 (reduce #(update-in % [%2] f) m ks))
 
-     (def nba_team_stats_nums [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT])
+     ;; ;; Data munging functions and the columns they will apply to.
+     ;; (def nba_team_stats_data_functions
+     ;;   ({:function 
 
+     ;; ;; Use update-keys to perform all necessary data munging.
+     ;; (defn nba_team_stats_data_munging [coll]
+     ;;   (loop 
+     ;;    (update-keys coll
+     ;;                 [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT]
+     ;;                 read-string)))
+
+     (def nba_team_stats_nums [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT])
+    
      (def nba_team_stats_2011
        (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
 	 (doall
 	  (let [csv-data (csv/read-csv reader)]
-     ;;       (csv-data->sorted-maps csv-data)))))
-	    (map #(update-keys % nba_team_stats_nums read-string)
-		 (csv-data->sorted-maps csv-data))))))
+	    (csv-data->sorted-maps csv-data
+	     (map #(update-keys % nba_team_stats_nums read-string)
+		 (csv-data->maps csv-data)))))))
 
      (take 2 nba_team_stats_2011)
    #+end_src
