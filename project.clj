@@ -5,6 +5,7 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/data.csv "1.0.0"]
+                 [aprint "0.1.3"]
                  [metasoarous/oz "1.6.0-alpha6"]]
   :main ^:skip-aot nba.core
   :target-path "target/%s"

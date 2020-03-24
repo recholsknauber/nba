@@ -16,9 +16,14 @@ https://github.com/clojure/data.csv
      (require '[clojure.data.csv :as csv]
 	      '[clojure.java.io :as io])
 
+     (def whole-numbers (iterate inc 1))
+
+     (defn csv-data-sort-columns [csv-data seq-maps]
+       (sorted-map-by (get #(zipmap (map keyword (first csv-data) whole-numbers))) seq-maps))
+                       
      ;; Convert CSV data to maps
      (defn csv-data->maps [csv-data]
-       (map zipmap
+       (csv-data-sor(map zipmap
 	    (->> (first csv-data) ;; First row is the header
 		 (map keyword) ;; Drop if you want string keys instead
 		 repeat)
@@ -40,7 +45,22 @@ https://github.com/clojure/data.csv
      (oz/start-server!)
      ;; http://localhost:10666/
    #+end_src
-** Visualizin Mavs
+** Visualizing Mavs
    #+begin_src clojure
      (filter #(= (:TEAM_NAME %) "Mavericks") nba_team_stats_2011)
+
+     (defn play-data [& names]
+       (for [n names
+	     i (range 20)]
+	     {:time i :item n :quantity (+ (Math/pow (* i (count n)) 0.8) (rand-int (count n)))}))
+
+     (def line-plot
+       {:data {:values (play-data "monkey" "slipper" "broom")}
+	:encoding {:x {:field "time" :type "quantitative"}
+		   :y {:field "quantity" :type "quantitative"}
+		   :color {:field "item" :type "nominal"}}
+	:mark "line"})
+
+     ;; Render the plot
+     (oz/view! line-plot)
    #+end_src
