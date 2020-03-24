@@ -1,4 +1,4 @@
-* Use libpython-clj to pull NBA data
+* Use Python to pull NBA data
 ** Python code for data pull
    #+name: nba_data_import
    #+begin_src python
@@ -10,7 +10,8 @@
      nba_data_import_2011.to_csv("~/data/nba-data/nba_teams_2012.csv", index=True)
    #+end_src
 
-** Import NBA csv to Clojure
+* Clojure Data Manipulation
+** Import NBA csv to Clojure, formatting into a sequence of maps.
 https://github.com/clojure/data.csv
    #+begin_src clojure
      (require '[clojure.data.csv :as csv]
