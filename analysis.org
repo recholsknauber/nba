@@ -58,9 +58,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 		    (+ counter 1)
 		    (conj result (func m ks)))
 	     (= counter (count funcs)) ;; If last data munge, return function on last result.
-	     (do
-	       (println (func (last result) ks))
-	       (func (last result) ks))
+	     (func (last result) ks)
 	     :else (recur (func (last result) ks) ;; Else, recur function on last result.
 			  (clojure.set/select #(= (:order %) (+ counter 1)) funcs)
 			  (+ counter 1)
@@ -76,9 +74,9 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
        #{{:order 1
 	  :function (fn [m ks] (update-keys m ks read-string))
 	  :ks [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT]}
-	 ;; {:order 2
-	 ;;  :function (fn [m ks] (update-in m ks (read-string (subs (ks m) 0 4))))
-	 ;;  :ks :START_YEAR}
+	 {:order 2
+	  :function (fn [m ks] (update-in m ks #(read-string (subs % 0 4))))
+	  :ks [:START_YEAR]}
 	 })
 
      (def nba_team_stats_2011
