@@ -50,7 +50,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 	   (if (= counter (count funcs))
 	     (func m ks)
 	     (recur (func m ks)
-		    (clojure.set/select #(= (:order %) 1) funcs)
+		    (clojure.set/select #(= (:order %) counter) funcs)
 		    (+ counter 1))))))
 
      ;; Data munging functions and the columns they will apply to.
@@ -60,6 +60,10 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 	 :function (fn [m ks] (update-keys m ks read-string))
 	 :ks [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT]
 	 }
+	 ;; {:order 2
+	 ;;  :function (fn [m ks] (subs (ks m) 0 4))
+	 ;;  :ks [:START_YEAR]
+	 ;;  }
 	})
 
      (def nba_team_stats_2011
