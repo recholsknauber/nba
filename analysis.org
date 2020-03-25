@@ -5,7 +5,7 @@
      import pandas as pd
      from nba_data_pull import get_nba_team_stats
 
-     nba_data_import_2000 = get_nba_team_stats (2011)
+     nba_data_import_2000 = get_nba_team_stats (2004)
      nba_data_import_2000.head()
 
      nba_data_import_2000.to_excel("~/data/nba-data/nba_teams_2000.xlsx",index=True)
@@ -13,7 +13,6 @@
    #+end_src
 
    #+RESULTS: nba_data_import
-   : None
 
 * Clojure Data Manipulation
 ** Import NBA csv to Clojure, formatting into a sequence of maps.
