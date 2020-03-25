@@ -7,7 +7,9 @@
 
      nba_data_import_2011 = get_nba_team_stats (2011)
      nba_data_import_2011.head()
+
      nba_data_import_2011.to_csv("~/data/nba-data/nba_teams_2012.csv", index=True)
+
    #+end_src
 
 * Clojure Data Manipulation
@@ -72,7 +74,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 	  :function (fn [m ks] (update-in m ks #(read-string (subs % 0 4))))
 	  :ks [:START_YEAR]}
 	 {:order 3
-	  :function (fn [m & args] (assoc m :PLAYOFFS_APPEARANCE
+	  :function (fn [m & args] (assoc m :PLAYOFF_APPEARANCE
 				      (if (or (> (:PO_LOSSES m) 0) (> (:PO_WINS m) 0)) "Y" "N")))
 	  :ks [:PO_LOSSES :PO_WINS]}
 	 })
