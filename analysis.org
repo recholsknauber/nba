@@ -46,10 +46,10 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
      ;; Use update-keys to perform all necessary data munging.
      (defn data_munging [coll funcs]
        (loop [m coll fks (clojure.set/select #(= (:order %) 1) funcs) counter 1]
-	 (let [func (:function fks) ks (:ks fks)]
+	 (let [func (:function (first fks)) ks (:ks (first fks))]
 	   (if (= counter (count funcs))
-	     (update-keys m ks func)
-	     (recur (update-keys m ks func)
+	     (func m ks)
+	     (recur (func m ks)
 		    (clojure.set/select #(= (:order %) 1) funcs)
 		    (+ counter 1))))))
 
@@ -57,7 +57,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
      (def nba_team_stats_data_functions
        #{
 	{:order 1
-	 :function (fn [m ks] update-keys m ks read-string)
+	 :function (fn [m ks] (update-keys m ks read-string))
 	 :ks [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT]
 	 }
 	})
@@ -73,7 +73,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
      (take 2 nba_team_stats_2011)
 
      ;; (def nba_team_stats_nums [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT])
-    
+
      ;; (def nba_team_stats_2011
      ;;   (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
      ;;     (doall
