@@ -91,7 +91,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
    #+end_src
 
    #+RESULTS:
-   : nil#'nba.core/whole-numbers#'nba.core/csv-data-sort-columns#'nba.core/csv-data->maps#'nba.core/csv-data->sorted-maps#'nba.core/nba_team_stats_2011({:TEAM_ID "1610612737", :YEAR "2012-13", :AST "2007", :BLK "369", :CONF_COUNT "15.0", :CONF_RANK "6", :DIV_COUNT "5", :DIV_RANK "2", :DREB "2593", :FG3A "1901", :FG3M "706", :FG3_PCT "0.371", :FGA "6644", :FGM "3084", :FG_PCT "0.464", :FTA "1619", :FTM "1158", :FT_PCT "0.715", :GP "82", :LOSSES "38", :NBA_FINALS_APPEARANCE "N/A", :OREB "758", :PF "1473", :PO_LOSSES "4", :PO_WINS "2", :PTS "8032", :PTS_RANK "14", :REB "3351", :START_YEAR "2012-13", :STL "664", :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV "1219", :WINS "44", :WIN_PCT "0.537"} {:TEAM_ID "1610612737", :YEAR "2013-14", :AST "2041", :BLK "326", :CONF_COUNT "15.0", :CONF_RANK "8", :DIV_COUNT "5", :DIV_RANK "4", :DREB "2565", :FG3A "2116", :FG3M "768", :FG3_PCT "0.363", :FGA "6688", :FGM "3061", :FG_PCT "0.458", :FTA "1782", :FTM "1392", :FT_PCT "0.781", :GP "82", :LOSSES "44", :NBA_FINALS_APPEARANCE "N/A", :OREB "713", :PF "1577", :PO_LOSSES "4", :PO_WINS "3", :PTS "8282", :PTS_RANK "15", :REB "3278", :START_YEAR "2013-14", :STL "680", :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV "1251", :WINS "38", :WIN_PCT "0.463"})
+   : nil#'nba.core/whole-numbers#'nba.core/csv-data-sort-columns#'nba.core/csv-data->sorted-maps#'nba.core/csv-data->maps#'nba.core/update-keys#'nba.core/data_munging#'nba.core/nba_team_stats_data_functions#'nba.core/nba_team_stats_2011({:TEAM_ID "1610612737", :YEAR "2012-13", :AST 2007, :BLK 369, :CONF_COUNT 15.0, :CONF_RANK 6, :DIV_COUNT 5, :DIV_RANK 2, :DREB 2593, :FG3A 1901, :FG3M 706, :FG3_PCT 0.371, :FGA 6644, :FGM 3084, :FG_PCT 0.464, :FTA 1619, :FTM 1158, :FT_PCT 0.715, :GP 82, :LOSSES 38, :NBA_FINALS_APPEARANCE "N/A", :OREB 758, :PF 1473, :PO_LOSSES 4, :PO_WINS 2, :PTS 8032, :PTS_RANK 14, :REB 3351, :START_YEAR 2012, :STL 664, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1219, :WINS 44, :WIN_PCT 0.537} {:TEAM_ID "1610612737", :YEAR "2013-14", :AST 2041, :BLK 326, :CONF_COUNT 15.0, :CONF_RANK 8, :DIV_COUNT 5, :DIV_RANK 4, :DREB 2565, :FG3A 2116, :FG3M 768, :FG3_PCT 0.363, :FGA 6688, :FGM 3061, :FG_PCT 0.458, :FTA 1782, :FTM 1392, :FT_PCT 0.781, :GP 82, :LOSSES 44, :NBA_FINALS_APPEARANCE "N/A", :OREB 713, :PF 1577, :PO_LOSSES 4, :PO_WINS 3, :PTS 8282, :PTS_RANK 15, :REB 3278, :START_YEAR 2013, :STL 680, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1251, :WINS 38, :WIN_PCT 0.463})
 
 ** Start Oz server (throws error on browser open, but is correctly running on local port.)
    #+begin_src clojure
@@ -101,25 +101,14 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
    #+end_src
 ** Visualizing Mavs
    #+begin_src clojure
+     ;; Create basic line plot with NBA data.
      (def line-plot
-       {:data {:values
-	       (filter #(= (:TEAM_NAME %) "Mavericks") nba_team_stats_2011)}
-	:encoding {:x {:field "START_YEAR" :type "quantitative"}
+       {:data {:values (filter #(= (:TEAM_NAME %) "Mavericks") nba_team_stats_2011)}
+	:encoding {:x {:field "START_YEAR" :type "ordinal"}
 		   :y {:field "FG_PCT" :type "quantitative"}
-		   :color {:field "WINS" :type "quantitative"}}
+		   :color {:field "PO_WINS" :type "quantitative"}}
 	:mark "line"})
 
-     ;; (defn play-data [& names]
-     ;;   (for [n names
-     ;; 	i (range 20)]
-     ;; 	{:time i :item n :quantity (+ (Math/pow (* i (count n)) 0.8) (rand-int (count n)))}))
-
-     ;; (def line-plot
-     ;;   {:data {:values (play-data "monkey" "slipper" "broom")}
-     ;;    :encoding {:x {:field "time" :type "quantitative"}
-     ;; 	      :y {:field "quantity" :type "quantitative"}
-     ;; 	      :color {:field "item" :type "nominal"}}
-     ;;    :mark "line"})
 
      ;; Render the plot
      (oz/view! line-plot)
@@ -127,3 +116,17 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 
    #+RESULTS:
    : #'nba.core/line-plotnil
+** Exporting NBA csv
+   #+begin_src clojure
+     (defn write-csv-from-smaps [path smaps]
+       (let [columns (keys (first smaps))
+	     headers (map name columns)
+	     rows (mapv #(mapv % columns) smaps)]
+	 (with-open [file (io/writer path)]
+		 (csv/write-csv file (cons headers rows)))))
+
+     (write-csv-from-smaps "/home/recholsknauber/data/nba-data/nba_teams_2012-out-file.csv" nba_team_stats_2011)
+   #+end_src
+
+   #+RESULTS:
+   : nil
