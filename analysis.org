@@ -21,7 +21,42 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
    #+begin_src clojure
      (require '[clojure.data.csv :as csv]
 	      '[clojure.java.io :as io]
-	      '[aprint.core :as aprint])
+	      '[data-munge.core :as dm])
+
+     ;; Data munging functions and the columns they will apply to.
+     (def nba_team_stats_data_functions
+       #{{:order 1
+	  :function (fn [m ks] (dm/update-keys m ks read-string))
+	  :ks [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT]}
+	 {:order 2
+	  :function (fn [m ks] (update-in m ks #(read-string (subs % 0 4))))
+	  :ks [:START_YEAR]}
+	 {:order 3
+	  :function (fn [m & args] (assoc m :PLAYOFF_APPEARANCE
+				      (if (or (> (:PO_LOSSES m) 0) (> (:PO_WINS m) 0)) "Y" "N")))
+	  :ks [:PO_LOSSES :PO_WINS]}
+	 })
+
+     (def nba_team_stats_2000
+       (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
+	 (doall
+	  (let [csv-data (csv/read-csv reader)]
+	    (dm/csv-data->sorted-maps csv-data
+				   (map #(dm/data_munging % nba_team_stats_data_functions)
+					(dm/csv-data->maps csv-data)))))))
+
+     (take 2 nba_team_stats_2000)
+
+
+   #+end_src
+
+   #+RESULTS:
+   : nil#'nba.core/nba_team_stats_data_functions#'nba.core/nba_team_stats_2000({:PLAYOFF_APPEARANCE "Y", :TEAM_ID "1610612737", :YEAR "2012-13", :AST 2007, :BLK 369, :CONF_COUNT 15.0, :CONF_RANK 6, :DIV_COUNT 5, :DIV_RANK 2, :DREB 2593, :FG3A 1901, :FG3M 706, :FG3_PCT 0.371, :FGA 6644, :FGM 3084, :FG_PCT 0.464, :FTA 1619, :FTM 1158, :FT_PCT 0.715, :GP 82, :LOSSES 38, :NBA_FINALS_APPEARANCE "N/A", :OREB 758, :PF 1473, :PO_LOSSES 4, :PO_WINS 2, :PTS 8032, :PTS_RANK 14, :REB 3351, :START_YEAR 2012, :STL 664, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1219, :WINS 44, :WIN_PCT 0.537} {:PLAYOFF_APPEARANCE "Y", :TEAM_ID "1610612737", :YEAR "2013-14", :AST 2041, :BLK 326, :CONF_COUNT 15.0, :CONF_RANK 8, :DIV_COUNT 5, :DIV_RANK 4, :DREB 2565, :FG3A 2116, :FG3M 768, :FG3_PCT 0.363, :FGA 6688, :FGM 3061, :FG_PCT 0.458, :FTA 1782, :FTM 1392, :FT_PCT 0.781, :GP 82, :LOSSES 44, :NBA_FINALS_APPEARANCE "N/A", :OREB 713, :PF 1577, :PO_LOSSES 4, :PO_WINS 3, :PTS 8282, :PTS_RANK 15, :REB 3278, :START_YEAR 2013, :STL 680, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1251, :WINS 38, :WIN_PCT 0.463})
+
+*** With all data-munge functions
+   #+begin_src clojure
+     (require '[clojure.data.csv :as csv]
+	      '[clojure.java.io :as io])
 
      (def whole-numbers (iterate inc 1))
 
@@ -47,7 +82,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
      (defn update-keys [m ks f]
        (reduce #(update-in % [%2] f) m ks))
 
-     ;; Use update-keys to perform all necessary data munging.
+     ;; Use an smap of functions and keys to perform all necessary data munging.
      (defn data_munging [coll funcs]
        (loop [m coll fks (clojure.set/select #(= (:order %) 1) funcs) counter 1 result []]
 	 (let [func (:function (first fks)) ks (:ks (first fks))]
