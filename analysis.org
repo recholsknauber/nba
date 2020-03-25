@@ -104,7 +104,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
      (def line-plot
        {:data {:values
 	       (filter #(= (:TEAM_NAME %) "Mavericks") nba_team_stats_2011)}
-	:encoding {:x {:field "YEAR" :type "quantitative"}
+	:encoding {:x {:field "START_YEAR" :type "quantitative"}
 		   :y {:field "FG_PCT" :type "quantitative"}
 		   :color {:field "WINS" :type "quantitative"}}
 	:mark "line"})
@@ -124,3 +124,6 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
      ;; Render the plot
      (oz/view! line-plot)
    #+end_src
+
+   #+RESULTS:
+   : #'nba.core/line-plotnil
