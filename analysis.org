@@ -43,28 +43,44 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
      (defn update-keys [m ks f]
 	 (reduce #(update-in % [%2] f) m ks))
 
-     ;; ;; Data munging functions and the columns they will apply to.
-     ;; (def nba_team_stats_data_functions
-     ;;   ({:function 
+     ;; Use update-keys to perform all necessary data munging.
+     (defn data_munging [coll funcs]
+       (loop [m coll fks (clojure.set/select #(= (:order %) 1) funcs) counter 1]
+	 (let [func (:function fks) ks (:ks fks)]
+	   (if (= counter (count funcs))
+	     (update-keys m ks func)
+	     (recur (update-keys m ks func)
+		    (clojure.set/select #(= (:order %) 1) funcs)
+		    (+ counter 1))))))
 
-     ;; ;; Use update-keys to perform all necessary data munging.
-     ;; (defn nba_team_stats_data_munging [coll]
-     ;;   (loop 
-     ;;    (update-keys coll
-     ;;                 [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT]
-     ;;                 read-string)))
+     ;; Data munging functions and the columns they will apply to.
+     (def nba_team_stats_data_functions
+       #{
+	{:order 1
+	 :function (fn [m ks] update-keys m ks read-string)
+	 :ks [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT]
+	 }
+	})
 
-     (def nba_team_stats_nums [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT])
-    
      (def nba_team_stats_2011
        (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
 	 (doall
 	  (let [csv-data (csv/read-csv reader)]
 	    (csv-data->sorted-maps csv-data
-	     (map #(update-keys % nba_team_stats_nums read-string)
+	     (map #(data_munging % nba_team_stats_data_functions)
 		 (csv-data->maps csv-data)))))))
 
      (take 2 nba_team_stats_2011)
+
+     ;; (def nba_team_stats_nums [:AST :BLK :CONF_COUNT :CONF_RANK :DIV_COUNT :DIV_RANK :DREB :FG3A :FG3M :FG3_PCT :FGA :FGM :FG_PCT :FTA :FTM :FT_PCT :GP :LOSSES :OREB :PF :PO_LOSSES :PO_WINS :PTS :PTS_RANK :REB :STL :TOV :WINS :WIN_PCT])
+    
+     ;; (def nba_team_stats_2011
+     ;;   (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
+     ;;     (doall
+     ;;      (let [csv-data (csv/read-csv reader)]
+     ;;        (csv-data->sorted-maps csv-data
+     ;; 	(map #(update-keys % nba_team_stats_nums read-string)
+     ;; 	    (csv-data->maps csv-data)))))))
    #+end_src
 
    #+RESULTS:
