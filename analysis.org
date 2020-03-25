@@ -32,8 +32,6 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 
 
      ;; Convert CSV data to maps
-
-
      (defn csv-data->maps [csv-data]
        (map zipmap
 	    (->> (first csv-data)
@@ -62,14 +60,10 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 	     :else (recur (func (last result) ks) ;; Else, recur function on last result.
 			  (clojure.set/select #(= (:order %) (+ counter 1)) funcs)
 			  (+ counter 1)
-			  (conj (func result (last result) ks)))))))
-
-
+			  (conj result (func (last result) ks)))))))
 
 
      ;; Data munging functions and the columns they will apply to.
-
-
      (def nba_team_stats_data_functions
        #{{:order 1
 	  :function (fn [m ks] (update-keys m ks read-string))
@@ -77,6 +71,10 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 	 {:order 2
 	  :function (fn [m ks] (update-in m ks #(read-string (subs % 0 4))))
 	  :ks [:START_YEAR]}
+	 {:order 3
+	  :function (fn [m & args] (assoc m :PLAYOFFS_APPEARANCE
+				      (if (or (> (:PO_LOSSES m) 0) (> (:PO_WINS m) 0)) "Y" "N")))
+	  :ks [:PO_LOSSES :PO_WINS]}
 	 })
 
      (def nba_team_stats_2011
