@@ -13,7 +13,11 @@
    #+end_src
 
    #+RESULTS: nba_data_import
-
+** Import player and salary data
+   #+begin_src python
+     import pandas as pd
+     pd.read_csv("~/data/nba-data/salaries_1985to2018.csv")
+   #+end_src
 * Clojure Data Manipulation
 ** Import NBA csv to Clojure, formatting into a sequence of maps.
 https://github.com/clojure/data.csv
@@ -130,6 +134,16 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
    #+RESULTS:
    : nil#'nba.core/whole-numbers#'nba.core/csv-data-sort-columns#'nba.core/csv-data->sorted-maps#'nba.core/csv-data->maps#'nba.core/update-keys#'nba.core/data_munging#'nba.core/nba_team_stats_data_functions#'nba.core/nba_team_stats_2000({:PLAYOFF_APPEARANCE "Y", :TEAM_ID "1610612737.0", :YEAR "2012-13", :AST 2007, :BLK 369, :CONF_COUNT 15, :CONF_RANK 6, :DIV_COUNT 5, :DIV_RANK 2, :DREB 2593, :FG3A 1901, :FG3M 706, :FG3_PCT 0.371, :FGA 6644, :FGM 3084, :FG_PCT 0.464, :FTA 1619, :FTM 1158, :FT_PCT 0.715, :GP 82, :LOSSES 38, :NBA_FINALS_APPEARANCE "", :OREB 758, :PF 1473, :PO_LOSSES 4, :PO_WINS 2, :PTS 8032, :PTS_RANK 14, :REB 3351, :START_YEAR 2012, :STL 664, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1219, :WINS 44, :WIN_PCT 0.537} {:PLAYOFF_APPEARANCE "Y", :TEAM_ID "", :YEAR "2013-14", :AST 2041, :BLK 326, :CONF_COUNT 15, :CONF_RANK 8, :DIV_COUNT 5, :DIV_RANK 4, :DREB 2565, :FG3A 2116, :FG3M 768, :FG3_PCT 0.363, :FGA 6688, :FGM 3061, :FG_PCT 0.458, :FTA 1782, :FTM 1392, :FT_PCT 0.781, :GP 82, :LOSSES 44, :NBA_FINALS_APPEARANCE "", :OREB 713, :PF 1577, :PO_LOSSES 4, :PO_WINS 3, :PTS 8282, :PTS_RANK 15, :REB 3278, :START_YEAR 2013, :STL 680, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1251, :WINS 38, :WIN_PCT 0.463})
 
+** Joining with Player Data
+   #+begin_src clojure
+     (def nba_player_salaries
+       (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/salaries_1985to2018.csv")]
+	 (doall
+	  (let [csv-data (csv/read-csv reader)]
+	    (dm/csv-data->sorted-maps csv-data (dm/csv-data->maps csv-data))))))
+
+     ;;(def nba_player_salaries_cleaned
+   #+end_src
 ** Start Oz server (throws error on browser open, but is correctly running on local port.)
    #+begin_src clojure
      (require '[oz.core :as oz])
