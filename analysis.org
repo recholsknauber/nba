@@ -13,6 +13,7 @@
    #+end_src
 
    #+RESULTS: nba_data_import
+   : None
 ** Import player and salary data
    #+begin_src python
      import pandas as pd
@@ -42,7 +43,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 	 })
 
      (def nba_team_stats_2000
-       (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2012.csv")]
+       (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/nba_teams_2000.csv")]
 	 (doall
 	  (let [csv-data (csv/read-csv reader)]
 	    (dm/csv-data->sorted-maps csv-data
@@ -55,7 +56,7 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
    #+end_src
 
    #+RESULTS:
-   : nil#'nba.core/nba_team_stats_data_functions#'nba.core/nba_team_stats_2000({:PLAYOFF_APPEARANCE "Y", :TEAM_ID "1610612737", :YEAR "2012-13", :AST 2007, :BLK 369, :CONF_COUNT 15.0, :CONF_RANK 6, :DIV_COUNT 5, :DIV_RANK 2, :DREB 2593, :FG3A 1901, :FG3M 706, :FG3_PCT 0.371, :FGA 6644, :FGM 3084, :FG_PCT 0.464, :FTA 1619, :FTM 1158, :FT_PCT 0.715, :GP 82, :LOSSES 38, :NBA_FINALS_APPEARANCE "N/A", :OREB 758, :PF 1473, :PO_LOSSES 4, :PO_WINS 2, :PTS 8032, :PTS_RANK 14, :REB 3351, :START_YEAR 2012, :STL 664, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1219, :WINS 44, :WIN_PCT 0.537} {:PLAYOFF_APPEARANCE "Y", :TEAM_ID "1610612737", :YEAR "2013-14", :AST 2041, :BLK 326, :CONF_COUNT 15.0, :CONF_RANK 8, :DIV_COUNT 5, :DIV_RANK 4, :DREB 2565, :FG3A 2116, :FG3M 768, :FG3_PCT 0.363, :FGA 6688, :FGM 3061, :FG_PCT 0.458, :FTA 1782, :FTM 1392, :FT_PCT 0.781, :GP 82, :LOSSES 44, :NBA_FINALS_APPEARANCE "N/A", :OREB 713, :PF 1577, :PO_LOSSES 4, :PO_WINS 3, :PTS 8282, :PTS_RANK 15, :REB 3278, :START_YEAR 2013, :STL 680, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1251, :WINS 38, :WIN_PCT 0.463})
+   : nil#'nba.core/nba_team_stats_data_functions#'nba.core/nba_team_stats_2000({:PLAYOFF_APPEARANCE "N", :TEAM_ID "1610612737", :YEAR "2005-06", :AST 1625, :BLK 394, :CONF_COUNT 15.0, :CONF_RANK 14, :DIV_COUNT 5, :DIV_RANK 5, :DREB 2232, :FG3A 1154, :FG3M 424, :FG3_PCT 0.367, :FGA 6496, :FGM 2946, :FG_PCT 0.454, :FTA 2207, :FTM 1656, :FT_PCT 0.75, :GP 82, :LOSSES 56, :NBA_FINALS_APPEARANCE "N/A", :OREB 1069, :PF 2054, :PO_LOSSES 0, :PO_WINS 0, :PTS 7972, :PTS_RANK 16, :REB 3301, :START_YEAR 2005, :STL 587, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1284, :WINS 26, :WIN_PCT 0.317} {:PLAYOFF_APPEARANCE "N", :TEAM_ID "1610612737", :YEAR "2006-07", :AST 1573, :BLK 446, :CONF_COUNT 15.0, :CONF_RANK 13, :DIV_COUNT 5, :DIV_RANK 5, :DREB 2312, :FG3A 1038, :FG3M 341, :FG3_PCT 0.329, :FGA 6372, :FGM 2831, :FG_PCT 0.444, :FTA 2203, :FTM 1677, :FT_PCT 0.761, :GP 82, :LOSSES 52, :NBA_FINALS_APPEARANCE "N/A", :OREB 976, :PF 1970, :PO_LOSSES 0, :PO_WINS 0, :PTS 7680, :PTS_RANK 30, :REB 3288, :START_YEAR 2006, :STL 609, :TEAM_CITY "Atlanta", :TEAM_NAME "Hawks", :TOV 1306, :WINS 30, :WIN_PCT 0.366})
 
 *** With all data-munge functions
    #+begin_src clojure
@@ -136,14 +137,27 @@ https://stackoverflow.com/questions/9638271/update-the-values-of-multiple-keys
 
 ** Joining with Player Data
    #+begin_src clojure
+     ;; Functions on Salary data.
+     (def nba_player_salary_data_functions
+       #{{:order 1
+	  :function (fn [m ks] (update-in m ks #(read-string (subs % 0 4))))
+	  :ks [:season_start]}
+	 })
+
+
      (def nba_player_salaries
        (with-open [reader (io/reader "/home/recholsknauber/data/nba-data/salaries_1985to2018.csv")]
 	 (doall
 	  (let [csv-data (csv/read-csv reader)]
-	    (dm/csv-data->sorted-maps csv-data (dm/csv-data->maps csv-data))))))
+	    (dm/csv-data->sorted-maps csv-data (map #(dm/data_munging % nba_player_salary_data_functions)
+						    (dm/csv-data->maps csv-data)))))))
 
-     ;;(def nba_player_salaries_cleaned
    #+end_src
+
+   #+RESULTS:
+   : #'nba.core/nba_player_salary_data_functionsclass clojure.lang.Compiler$CompilerExceptionclass clojure.lang.Compiler$CompilerExceptionSyntax error (NullPointerException) compiling at (form-init5107194433011868465.clj:9:3).
+   : null
+
 ** Start Oz server (throws error on browser open, but is correctly running on local port.)
    #+begin_src clojure
      (require '[oz.core :as oz])
